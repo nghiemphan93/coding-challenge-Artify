@@ -3,15 +3,12 @@ package com.example.donut.customer;
 import com.example.donut.customer.dtos.CustomerCreateDto;
 import com.example.donut.customer.dtos.CustomerDto;
 import com.example.donut.customer.dtos.CustomerUpdateDto;
-import com.example.donut.order.Order;
-import com.example.donut.order.OrderService;
 import javassist.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor

@@ -13,11 +13,7 @@ import java.util.Date;
 
 @Data
 @NoArgsConstructor
-public class OrderUpdateDto {
-    @NotNull
-    private int quantity;
+public class OrderUpdateDto extends OrderDto{
     @NotNull
     private OrderStatus status;
-    @NotNull
-    private Long customerId;
 }

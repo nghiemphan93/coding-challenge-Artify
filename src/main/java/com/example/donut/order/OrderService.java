@@ -4,18 +4,17 @@ import com.example.donut.config.RandomDate;
 import com.example.donut.customer.Customer;
 import com.example.donut.customer.CustomerService;
 import com.example.donut.order.dtos.OrderCreateDto;
+import com.example.donut.order.dtos.OrderDto;
 import com.example.donut.order.dtos.OrderUpdateDto;
 import javassist.NotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityExistsException;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,18 +40,21 @@ public class OrderService {
     }
 
     public List<Order> getAll() {
-        System.out.println(this.orderRepo.findAllSortByPremiumAndCreatedAt());
         return this.orderRepo.findAllSortByPremiumAndCreatedAt();
     }
 
     public Order create(OrderCreateDto createDto) throws NotFoundException {
-        Customer customer = this.customerService.getOne(createDto.getCustomerId());
-        Optional<Order> foundOrder = this.orderRepo.findByCustomer(customer);
-        if (foundOrder.isPresent()) {
-            throw new EntityExistsException("customer has a current order");
-        }
+        hasCustomerOrder(createDto);
         Order order = this.orderCreateDto2order(createDto, new Order());
         return this.orderRepo.save(order);
+    }
+
+    private void hasCustomerOrder(OrderDto orderDto) throws NotFoundException {
+        Customer customer = this.customerService.getOne(orderDto.getCustomerId());
+        Optional<Order> foundOrder = this.orderRepo.findByCustomer(customer);
+        if (foundOrder.isPresent()) {
+            throw new NotFoundException("customer has a current order");
+        }
     }
 
     public Order getOne(Long id) throws NotFoundException {
@@ -61,6 +63,7 @@ public class OrderService {
     }
 
     public Order updateOne(Long id, OrderUpdateDto orderUpdateDto) throws NotFoundException {
+//        hasCustomerOrder(orderUpdateDto);
         Order oldEntity = this.getOne(id);
         Order newEntity = this.orderUpdateDto2order(orderUpdateDto, oldEntity);
         return this.orderRepo.save(newEntity);
@@ -68,10 +71,6 @@ public class OrderService {
 
     public void delete(Long id) {
         this.orderRepo.deleteById(id);
-    }
-
-    private int randomInRange(int from, int to) {
-        return ThreadLocalRandom.current().nextInt(from, to + 1);
     }
 
     private Date createOrderDate() {
